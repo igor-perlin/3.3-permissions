@@ -14,12 +14,11 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'status', 'creator', 'created_at', 'updated_at']
 
     def validate(self, data):
-        # Ограничение на количество открытых объявлений
-        if self.context['request'].method == 'POST':
+        if self.context['request'].method == 'POST' or data.get('status') == 'OPEN':
             user = self.context['request'].user
             open_ads_count = Advertisement.objects.filter(creator=user, status='OPEN').count()
             if open_ads_count >= 10:
-                raise ValidationError({"detail": "Нельзя иметь более 10 открытых объявлений."})
+                raise serializers.ValidationError("Нельзя иметь более 10 открытых объявлений.")
         return data
 
     def update(self, instance, validated_data):

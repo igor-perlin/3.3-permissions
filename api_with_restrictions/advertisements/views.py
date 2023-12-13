@@ -5,12 +5,12 @@ from .serializers import AdvertisementSerializer
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from .filters import AdvertisementFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from .permissions import IsAuthorOrReadOnly
 
 class AdvertisementViewSet(ModelViewSet):
     queryset = Advertisement.objects.all()
     serializer_class = AdvertisementSerializer
-    filterset_class = AdvertisementFilter
-    filter_backends = [DjangoFilterBackend]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         if Advertisement.objects.filter(creator=self.request.user, status='OPEN').count() >= 10:
